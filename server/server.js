@@ -1,25 +1,28 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+const express = require('express');
+const bodyParser = require('body-parser');
 
-var {
+const {
     mongoose
 } = require('./db/mongoose');
-var {
+const {
     User
 } = require('./models/user');
-var {
+const {
     Todo
 } = require('./models/todo');
 
-var {
+
+const {
     ObjectID
 } = require('mongodb');
 
-var app = express();
+const PORT = process.env.PORT || 3000;
+
+const app = express();
 app.use(bodyParser.json());
 
 app.post('/todos', (req, res) => {
-    var todo = new Todo({
+    const todo = new Todo({
         text: req.body.text
     });
     todo.save().then((savedDoc) => {
@@ -40,7 +43,7 @@ app.get('/todos', (req, res) => {
 });
 
 app.get('/todos/:id', (req, res) => {
-    var id = req.params.id;
+    const id = req.params.id;
     if (!ObjectID.isValid(id)) {
         return res.status(404).send();
     }
@@ -56,8 +59,42 @@ app.get('/todos/:id', (req, res) => {
     });
 });
 
-app.listen(3000, () => {
-    console.log('Started on port 3000');
+app.delete('/todos/:id', (req, res) => {
+    const id = req.params.id;
+    if (!ObjectID.isValid(id)) {
+        return res.status(404).send();
+    }
+
+    //The code below causese DeprecationWarning:
+
+    // Todo.findByIdAndRemove(id).then((todo) => {
+    //     if (!todo) {
+    //         return res.status(404).send();
+    //     }
+    //     res.send({
+    //         todo
+    //     });
+    // }).catch((err) => {
+    //     res.status(400).send();
+    // });
+
+    Todo.findOneAndDelete({
+        _id: id
+    }).then((todo) => {
+        if (!todo) {
+            return res.status(404).send();
+        }
+        res.send({
+            todo
+        });
+    }).catch((err) => {
+        res.status(400).send();
+    });
+
+});
+
+app.listen(PORT, () => {
+    console.log(`Started on port ${PORT}`);
 });
 
 module.exports = {

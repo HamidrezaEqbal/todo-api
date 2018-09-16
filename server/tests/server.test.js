@@ -27,7 +27,7 @@ beforeEach((done) => {
 
 describe('POST /todos', () => {
     it('should add todo to the database', (done) => {
-        var text = 'test todo';
+        const text = 'test todo';
         request(app)
             .post('/todos').send({
                 text
