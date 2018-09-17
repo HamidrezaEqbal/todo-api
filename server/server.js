@@ -80,19 +80,6 @@ app.delete('/todos/:id', (req, res) => {
         res.status(400).send();
     });
 
-    // Todo.findOneAndDelete({
-    //     _id: id
-    // }).then((todo) => {
-    //     if (!todo) {
-    //         return res.status(404).send();
-    //     }
-    //     res.send({
-    //         todo
-    //     });
-    // }).catch((err) => {
-    //     res.status(400).send();
-    // });
-
 });
 
 app.patch('/todos/:id', (req, res) => {
