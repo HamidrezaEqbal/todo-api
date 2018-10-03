@@ -1,3 +1,5 @@
+"use strict";
+
 require('./config/config');
 
 const _ = require('lodash');
@@ -21,6 +23,7 @@ const {
 
 // to solve DeprecationWarning:
 mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
 
 const PORT = process.env.PORT;
 
@@ -89,7 +92,7 @@ app.patch('/todos/:id', (req, res) => {
     if (!ObjectID.isValid(id)) {
         return res.status(404).send();
     }
-    var body = _.pick(req.body, ['text', 'completed'])
+    const body = _.pick(req.body, ['text', 'completed'])
     if (_.isBoolean(body.completed) && body.completed) {
         body.completedAt = new Date().getTime();
     } else {
@@ -110,6 +113,19 @@ app.patch('/todos/:id', (req, res) => {
         });
     }).catch((err) => {
         res.send(400).send();
+    });
+});
+
+app.post('/users', (req, res) => {
+    const body = _.pick(req.body, ['email', 'password']);
+    const user = new User(body);
+    user.save().then(() => {
+        // res.send(savedUser);
+        return user.generateAuthToken();
+    }).then((token) => {
+        res.header('x-auth', token).send(user);
+    }).catch((err) => {
+        res.status(400).send(err);
     });
 });
 
